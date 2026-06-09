@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login – Tatame Store</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Source+Sans+3:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- HEADER -->
+<header>
+  <div class="header-inner">
+    <a href="index.html" class="logo">
+      <div class="logo-icone">🥋</div>
+      <div class="logo-texto">
+        <span class="logo-nome">Tatame Store</span>
+        <span class="logo-slogan">Arte Suave em Cada Produto</span>
+      </div>
+    </a>
+    <button class="hamburger" onclick="toggleMenu()" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
+    <nav id="nav-principal">
+      <ul>
+        <li><a href="index.html">Início</a></li>
+        <li><a href="loja.html">Loja</a></li>
+        <li><a href="cadastro.html">Cadastrar</a></li>
+        <li><a href="relatorios.html">Relatórios</a></li>
+        <li id="area-usuario"><a href="login.html" class="btn-nav-login ativo">Entrar</a></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<!-- MAIN -->
+<main class="pagina-form">
+  <div class="caixa-form">
+    <div style="text-align:center; font-size:2.5rem; margin-bottom:0.5rem;">🔐</div>
+    <h1 class="caixa-form-titulo" style="text-align:center;">Entrar</h1>
+    <p class="caixa-form-sub" style="text-align:center;">Acesse sua conta Tatame Store</p>
+
+    <div id="alerta-login" class="alerta"></div>
+
+    <div class="form-grupo">
+      <label for="log-email">E-mail</label>
+      <input type="email" id="log-email" placeholder="seu@email.com" autocomplete="email">
+    </div>
+
+    <div class="form-grupo">
+      <label for="log-senha">Senha</label>
+      <input type="password" id="log-senha" placeholder="Sua senha"
+             autocomplete="current-password"
+             onkeydown="if(event.key==='Enter') realizarLogin()">
+    </div>
+
+    <button class="btn btn-primario" style="width:100%; margin-top:0.5rem;" onclick="realizarLogin()">
+      Entrar
+    </button>
+
+    <div class="caixa-form-link">
+      Não tem conta? <a href="cadastro.html">Cadastre-se grátis</a>
+    </div>
+  </div>
+</main>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-grid">
+    <div class="footer-col">
+      <h3>🥋 Tatame Store</h3>
+      <p>Fundada por praticantes de Jiu-Jitsu para praticantes.</p>
+    </div>
+    <div class="footer-col">
+      <h3>Navegação</h3>
+      <ul>
+        <li><a href="index.html">Início</a></li>
+        <li><a href="loja.html">Loja</a></li>
+        <li><a href="cadastro.html">Cadastro</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h3>Contato</h3>
+      <p>📍 Florianópolis, SC</p>
+      <p>📞 (48) 99999-0001</p>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span>© 2026 Tatame Store. Todos os direitos reservados.</span>
+    <span>Desenvolvido com 🥋 e dedicação</span>
+  </div>
+</footer>
+
+<script src="main.js"></script>
+<script>
+  // Se já logado, redireciona
+  document.addEventListener("DOMContentLoaded", () => {
+    if (getSessao()) {
+      window.location.href = "loja.html";
+    }
+  });
+
+  function realizarLogin() {
+    const email = document.getElementById("log-email").value.trim();
+    const senha = document.getElementById("log-senha").value;
+    const alerta = document.getElementById("alerta-login");
+
+    alerta.className = "alerta";
+
+    if (!email || !senha) {
+      alerta.textContent = "Preencha e-mail e senha.";
+      alerta.classList.add("visivel", "alerta-erro");
+      return;
+    }
+
+    const ok = loginCliente(email, senha);
+    if (!ok) {
+      alerta.textContent = "E-mail ou senha incorretos.";
+      alerta.classList.add("visivel", "alerta-erro");
+      return;
+    }
+
+    alerta.textContent = "✅ Login realizado! Redirecionando...";
+    alerta.classList.add("visivel", "alerta-sucesso");
+    setTimeout(() => window.location.href = "loja.html", 1200);
+  }
+</script>
+</body>
+</html>

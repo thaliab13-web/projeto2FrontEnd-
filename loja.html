@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Loja – Tatame Store</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Source+Sans+3:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <style>
+    .toast {
+      position: fixed; bottom: 6rem; right: 2rem;
+      background: var(--azul); color: var(--branco);
+      padding: 0.8rem 1.4rem; border-radius: var(--raio);
+      font-size: 0.92rem; font-weight: 600;
+      box-shadow: var(--sombra); z-index: 400;
+      transform: translateY(20px); opacity: 0;
+      transition: all 0.3s; pointer-events: none;
+    }
+    .toast.visivel { transform: translateY(0); opacity: 1; }
+    .toast.toast-erro { background: #e53e3e; }
+
+    .loja-topo {
+      background: linear-gradient(90deg, var(--azul) 0%, var(--azul-medio) 100%);
+      color: var(--branco);
+      padding: 3rem 1.5rem 2.5rem;
+      text-align: center;
+    }
+    .loja-topo h1 {
+      font-family: var(--fonte-display);
+      font-size: 2.5rem;
+      letter-spacing: 0.05em;
+    }
+    .loja-topo p { opacity: 0.8; margin-top: 0.4rem; }
+
+    .aviso-login {
+      background: #EBF8FF;
+      border: 1px solid #90CDF4;
+      border-radius: var(--raio);
+      padding: 0.9rem 1.2rem;
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
+      margin-bottom: 1.5rem;
+      font-size: 0.92rem;
+      color: #2B6CB0;
+    }
+
+    .aviso-login a { font-weight: 700; text-decoration: underline; color: var(--azul); }
+
+    .barra-loja {
+      display: flex;
+      gap: 0.8rem;
+      margin-bottom: 1.5rem;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .barra-loja input {
+      flex: 1;
+      min-width: 200px;
+      padding: 0.65rem 1rem;
+      border: 2px solid var(--cinza-med);
+      border-radius: var(--raio);
+      font-size: 0.9rem;
+    }
+
+    .barra-loja input:focus {
+      outline: none;
+      border-color: var(--azul-claro);
+    }
+
+    .barra-loja select {
+      padding: 0.65rem 1rem;
+      border: 2px solid var(--cinza-med);
+      border-radius: var(--raio);
+      font-size: 0.9rem;
+      background: var(--branco);
+    }
+
+    .sem-resultados {
+      text-align: center;
+      color: var(--cinza-text);
+      padding: 3rem;
+      font-size: 1rem;
+      grid-column: 1/-1;
+    }
+  </style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header>
+  <div class="header-inner">
+    <a href="index.html" class="logo">
+      <div class="logo-icone">🥋</div>
+      <div class="logo-texto">
+        <span class="logo-nome">Tatame Store</span>
+        <span class="logo-slogan">Arte Suave em Cada Produto</span>
+      </div>
+    </a>
+    <button class="hamburger" onclick="toggleMenu()" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
+    <nav id="nav-principal">
+      <ul>
+        <li><a href="index.html">Início</a></li>
+        <li><a href="loja.html" class="ativo">Loja</a></li>
+        <li><a href="cadastro.html">Cadastrar</a></li>
+        <li><a href="relatorios.html">Relatórios</a></li>
+        <li id="area-usuario"><a href="login.html" class="btn-nav-login">Entrar</a></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<!-- TOPO LOJA -->
+<section class="loja-topo">
+  <h1>Nossa Loja 🛒</h1>
+  <p>Encontre tudo que precisa para treinar com qualidade</p>
+</section>
+
+<!-- MAIN -->
+<main class="secao">
+
+  <!-- AVISO LOGIN -->
+  <div class="aviso-login" id="aviso-login" style="display:none;">
+    ℹ️ Você está navegando como visitante. <a href="login.html">Entre</a> ou <a href="cadastro.html">cadastre-se</a> para finalizar compras.
+  </div>
+
+  <!-- BUSCA E FILTRO -->
+  <div class="barra-loja">
+    <input type="text" id="busca-loja" placeholder="🔍 Buscar produtos..." oninput="filtrarLoja()">
+    <select id="cat-loja" onchange="filtrarLoja()">
+      <option value="todos">Todas as categorias</option>
+      <option value="kimono">Kimonos</option>
+      <option value="faixa">Faixas</option>
+      <option value="protetor">Protetores</option>
+      <option value="vestuario">Vestuário</option>
+      <option value="acessorio">Acessórios</option>
+    </select>
+    <select id="ordem-loja" onchange="filtrarLoja()">
+      <option value="padrao">Ordenar por</option>
+      <option value="menor">Menor preço</option>
+      <option value="maior">Maior preço</option>
+      <option value="az">A–Z</option>
+    </select>
+  </div>
+
+  <div class="grade-produtos" id="grade-loja"></div>
+</main>
+
+<!-- CARRINHO FLUTUANTE -->
+<div class="carrinho-flutuante">
+  <button class="btn-carrinho" onclick="toggleCarrinho()" aria-label="Carrinho">
+    🛒
+    <span class="carrinho-badge" id="carrinho-badge" style="display:none;">0</span>
+  </button>
+</div>
+
+<!-- PAINEL CARRINHO -->
+<div class="overlay" id="overlay-carrinho"></div>
+<aside class="painel-carrinho" id="painel-carrinho">
+  <div class="painel-carrinho-cabecalho">
+    <h2>🛒 Carrinho</h2>
+    <button class="btn-fechar" onclick="fecharCarrinho()">✕</button>
+  </div>
+  <div class="painel-carrinho-itens" id="carrinho-itens"></div>
+  <div class="painel-carrinho-rodape">
+    <div class="total-carrinho">
+      <span>Total:</span>
+      <span id="carrinho-total">R$ 0,00</span>
+    </div>
+    <button class="btn btn-dourado" style="width:100%;" onclick="finalizarCompra()">
+      Finalizar Compra
+    </button>
+  </div>
+</aside>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-grid">
+    <div class="footer-col">
+      <h3>🥋 Tatame Store</h3>
+      <p>Fundada por praticantes de Jiu-Jitsu para praticantes. Qualidade e tradição da arte suave.</p>
+    </div>
+    <div class="footer-col">
+      <h3>Navegação</h3>
+      <ul>
+        <li><a href="index.html">Início</a></li>
+        <li><a href="loja.html">Loja</a></li>
+        <li><a href="cadastro.html">Cadastro</a></li>
+        <li><a href="login.html">Login</a></li>
+        <li><a href="relatorios.html">Relatórios</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h3>Contato</h3>
+      <p>📍 Florianópolis, SC</p>
+      <p>📞 (48) 99999-0001</p>
+      <p>📧 contato@tatamestore.com.br</p>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span>© 2026 Tatame Store. Todos os direitos reservados.</span>
+    <span>Desenvolvido com 🥋 e dedicação</span>
+  </div>
+</footer>
+
+<script src="main.js"></script>
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    if (!getSessao()) {
+      document.getElementById("aviso-login").style.display = "flex";
+    }
+    filtrarLoja();
+  });
+
+  function filtrarLoja() {
+    const termo = document.getElementById("busca-loja").value.toLowerCase();
+    const cat   = document.getElementById("cat-loja").value;
+    const ordem = document.getElementById("ordem-loja").value;
+
+    let lista = [...PRODUTOS];
+
+    if (cat !== "todos") lista = lista.filter(p => p.categoria === cat);
+    if (termo) lista = lista.filter(p =>
+      p.nome.toLowerCase().includes(termo) ||
+      p.desc.toLowerCase().includes(termo)
+    );
+
+    if (ordem === "menor") lista.sort((a,b) => a.preco - b.preco);
+    else if (ordem === "maior") lista.sort((a,b) => b.preco - a.preco);
+    else if (ordem === "az") lista.sort((a,b) => a.nome.localeCompare(b.nome));
+
+    const grade = document.getElementById("grade-loja");
+    if (lista.length === 0) {
+      grade.innerHTML = '<div class="sem-resultados">🔍 Nenhum produto encontrado.<br>Tente outro termo de busca.</div>';
+      return;
+    }
+
+    grade.innerHTML = lista.map(p => `
+      <article class="card-produto">
+        <div class="card-produto-img">${p.emoji}</div>
+        <div class="card-produto-corpo">
+          <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:0.2rem;">
+            <h3 class="card-produto-nome">${p.nome}</h3>
+            <span style="font-size:0.7rem; background:var(--cinza-leve); color:var(--cinza-text);
+              padding:0.15rem 0.4rem; border-radius:4px; white-space:nowrap; margin-left:0.4rem;">${p.id}</span>
+          </div>
+          <p class="card-produto-desc">${p.desc}</p>
+          <div class="card-produto-preco">R$ ${p.preco.toFixed(2).replace(".", ",")}</div>
+          <button class="btn btn-primario" onclick="adicionarAoCarrinho('${p.id}')" style="width:100%;">
+            🛒 Adicionar
+          </button>
+        </div>
+      </article>
+    `).join("");
+  }
+</script>
+</body>
+</html>

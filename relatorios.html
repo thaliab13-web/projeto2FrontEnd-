@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Relatórios – Tatame Store</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Source+Sans+3:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <style>
+    body { background: var(--cinza-leve); }
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+    .stat-card {
+      background: var(--branco);
+      border-radius: var(--raio);
+      padding: 1.2rem 1rem;
+      text-align: center;
+      border-top: 3px solid var(--azul);
+      box-shadow: var(--sombra);
+    }
+    .stat-valor {
+      font-family: var(--fonte-display);
+      font-size: 2rem;
+      color: var(--azul);
+      letter-spacing: 0.03em;
+    }
+    .stat-label {
+      font-size: 0.8rem;
+      color: var(--cinza-text);
+      margin-top: 0.2rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+    .modal-overlay {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.5);
+      z-index: 300; display: none;
+      align-items: center; justify-content: center;
+    }
+    .modal-overlay.visivel { display: flex; }
+    .modal {
+      background: var(--branco);
+      border-radius: var(--raio);
+      padding: 2rem;
+      width: 90%; max-width: 500px;
+      max-height: 80vh; overflow-y: auto;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+    }
+    .modal h3 {
+      font-family: var(--fonte-display);
+      color: var(--azul);
+      font-size: 1.4rem;
+      margin-bottom: 1rem;
+      letter-spacing: 0.05em;
+    }
+    .modal-campo {
+      display: flex; gap: 0.5rem;
+      margin-bottom: 0.6rem;
+      font-size: 0.9rem;
+    }
+    .modal-campo strong { color: var(--azul); min-width: 80px; }
+    .compra-produto-lista { font-size: 0.88rem; color: var(--cinza-text); }
+    .btn-acao {
+      background: none; border: none;
+      color: var(--azul-medio); cursor: pointer;
+      font-size: 0.85rem; font-weight: 600;
+      padding: 0.2rem 0.4rem;
+      border-radius: 4px;
+      transition: background 0.15s;
+    }
+    .btn-acao:hover { background: var(--cinza-leve); }
+  </style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header>
+  <div class="header-inner">
+    <a href="index.html" class="logo">
+      <div class="logo-icone">🥋</div>
+      <div class="logo-texto">
+        <span class="logo-nome">Tatame Store</span>
+        <span class="logo-slogan">Arte Suave em Cada Produto</span>
+      </div>
+    </a>
+    <button class="hamburger" onclick="toggleMenu()" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
+    <nav id="nav-principal">
+      <ul>
+        <li><a href="index.html">Início</a></li>
+        <li><a href="loja.html">Loja</a></li>
+        <li><a href="cadastro.html">Cadastrar</a></li>
+        <li><a href="relatorios.html" class="ativo">Relatórios</a></li>
+        <li id="area-usuario"><a href="login.html" class="btn-nav-login">Entrar</a></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<!-- MAIN -->
+<main class="pagina-relatorios">
+
+  <!-- CABEÇALHO RELATÓRIO -->
+  <header class="rel-cabecalho">
+    <div>
+      <h1>📊 Painel Administrativo</h1>
+      <p>Tatame Store – Área de Relatórios</p>
+    </div>
+    <div style="text-align:right;">
+      <p style="font-size:0.9rem; opacity:0.8;" id="data-relatorio"></p>
+      <p style="font-size:0.8rem; opacity:0.6;">Apenas para administradores</p>
+    </div>
+  </header>
+
+  <!-- ESTATÍSTICAS -->
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-valor" id="stat-clientes">0</div>
+      <div class="stat-label">Clientes</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-valor" id="stat-compras">0</div>
+      <div class="stat-label">Compras</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-valor" id="stat-faturamento">R$ 0</div>
+      <div class="stat-label">Faturamento</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-valor" id="stat-ticket">R$ 0</div>
+      <div class="stat-label">Ticket Médio</div>
+    </div>
+  </div>
+
+  <!-- RELATÓRIO CLIENTES -->
+  <section class="painel-admin" id="sec-clientes">
+    <h2>👤 Clientes Cadastrados</h2>
+
+    <div class="barra-busca">
+      <input type="text" id="busca-clientes" placeholder="🔍 Buscar por nome, ID, e-mail ou CPF..." oninput="filtrarClientes()">
+    </div>
+
+    <div class="tabela-wrapper">
+      <table id="tabela-clientes">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Nome</th>
+            <th>E-mail</th>
+            <th>CPF</th>
+            <th>Cadastro</th>
+            <th>Ações</th>
+          </tr>
+        </thead>
+        <tbody id="tbody-clientes"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- RELATÓRIO COMPRAS (área admin) -->
+  <section class="painel-admin" id="sec-compras">
+    <h2>🛒 Compras Realizadas</h2>
+
+    <div class="barra-busca">
+      <input type="text" id="busca-compras" placeholder="🔍 Buscar por ID, cliente, data, valor ou produto..." oninput="filtrarCompras()">
+    </div>
+
+    <div class="tabela-wrapper">
+      <table id="tabela-compras">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Cliente</th>
+            <th>ID Cliente</th>
+            <th>Data</th>
+            <th>Hora</th>
+            <th>Itens</th>
+            <th>Total</th>
+            <th>Ações</th>
+          </tr>
+        </thead>
+        <tbody id="tbody-compras"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- RODAPÉ RELATÓRIO -->
+  <footer class="rel-rodape">
+    <span>Tatame Store © 2026 – Relatório gerado automaticamente</span>
+    <span id="rodape-data-hora"></span>
+  </footer>
+
+</main>
+
+<!-- MODAL EDITAR CLIENTE -->
+<div class="modal-overlay" id="modal-editar">
+  <div class="modal">
+    <h3>✏️ Editar Cliente</h3>
+    <input type="hidden" id="edit-id">
+    <div class="form-grupo">
+      <label for="edit-nome">Nome</label>
+      <input type="text" id="edit-nome">
+    </div>
+    <div class="form-grupo">
+      <label for="edit-email">E-mail</label>
+      <input type="email" id="edit-email">
+    </div>
+    <div class="form-grupo">
+      <label for="edit-cpf">CPF</label>
+      <input type="text" id="edit-cpf" maxlength="14" oninput="mascaraCPF(this)">
+    </div>
+    <div class="form-grupo">
+      <label for="edit-senha">Nova Senha (deixe em branco para manter)</label>
+      <input type="password" id="edit-senha" placeholder="Nova senha">
+    </div>
+    <div id="alerta-edit" class="alerta"></div>
+    <div style="display:flex; gap:0.8rem; margin-top:1rem;">
+      <button class="btn btn-primario" onclick="salvarEdicao()" style="flex:1;">Salvar</button>
+      <button class="btn btn-outline" onclick="fecharModal()" style="flex:1;">Cancelar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL DETALHE COMPRA -->
+<div class="modal-overlay" id="modal-compra">
+  <div class="modal">
+    <h3>🛒 Detalhes da Compra</h3>
+    <div id="modal-compra-conteudo"></div>
+    <button class="btn btn-primario" onclick="fecharModalCompra()" style="margin-top:1.5rem; width:100%;">Fechar</button>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-grid">
+    <div class="footer-col">
+      <h3>🥋 Tatame Store</h3>
+      <p>Fundada por praticantes de Jiu-Jitsu para praticantes.</p>
+    </div>
+    <div class="footer-col">
+      <h3>Navegação</h3>
+      <ul>
+        <li><a href="index.html">Início</a></li>
+        <li><a href="loja.html">Loja</a></li>
+        <li><a href="cadastro.html">Cadastro</a></li>
+        <li><a href="login.html">Login</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h3>Contato</h3>
+      <p>📍 Florianópolis, SC</p>
+      <p>📞 (48) 99999-0001</p>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span>© 2026 Tatame Store. Todos os direitos reservados.</span>
+    <span>Desenvolvido com 🥋 e dedicação</span>
+  </div>
+</footer>
+
+<script src="main.js"></script>
+<script>
+  // DATAS
+  document.addEventListener("DOMContentLoaded", () => {
+    const agora = new Date();
+    const fmt = agora.toLocaleDateString("pt-BR", { weekday:"long", year:"numeric", month:"long", day:"numeric" });
+    const hora = agora.toLocaleTimeString("pt-BR");
+    document.getElementById("data-relatorio").textContent = fmt;
+    document.getElementById("rodape-data-hora").textContent = "Gerado em: " + agora.toLocaleDateString("pt-BR") + " às " + hora;
+
+    carregarEstatisticas();
+    renderizarClientes(carregar("clientes", []));
+    renderizarCompras(carregar("compras", []));
+  });
+
+  function carregarEstatisticas() {
+    const clientes = carregar("clientes", []);
+    const compras  = carregar("compras",  []);
+    const total    = compras.reduce((s,c) => s + c.valorTotal, 0);
+    const ticket   = compras.length ? total / compras.length : 0;
+
+    document.getElementById("stat-clientes").textContent    = clientes.length;
+    document.getElementById("stat-compras").textContent     = compras.length;
+    document.getElementById("stat-faturamento").textContent = "R$ " + total.toFixed(2).replace(".", ",");
+    document.getElementById("stat-ticket").textContent      = "R$ " + ticket.toFixed(2).replace(".", ",");
+  }
+
+  // CLIENTES
+  function filtrarClientes() {
+    const termo = document.getElementById("busca-clientes").value;
+    renderizarClientes(buscarClientes(termo));
+  }
+
+  function renderizarClientes(lista) {
+    const tbody = document.getElementById("tbody-clientes");
+    if (lista.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; color:var(--cinza-text); padding:2rem;">Nenhum cliente encontrado.</td></tr>';
+      return;
+    }
+    tbody.innerHTML = lista.map(c => `
+      <tr>
+        <td><strong>${c.id}</strong></td>
+        <td>${c.nome}</td>
+        <td>${c.email}</td>
+        <td>${c.cpf || "—"}</td>
+        <td>${c.dataCadastro || "—"}</td>
+        <td>
+          <button class="btn-acao" onclick="abrirEdicao('${c.id}')">✏️ Editar</button>
+        </td>
+      </tr>
+    `).join("");
+  }
+
+  // EDIÇÃO
+  function abrirEdicao(id) {
+    const clientes = carregar("clientes", []);
+    const c = clientes.find(x => x.id === id);
+    if (!c) return;
+    document.getElementById("edit-id").value    = c.id;
+    document.getElementById("edit-nome").value  = c.nome;
+    document.getElementById("edit-email").value = c.email;
+    document.getElementById("edit-cpf").value   = c.cpf || "";
+    document.getElementById("edit-senha").value = "";
+    document.getElementById("alerta-edit").className = "alerta";
+    document.getElementById("modal-editar").classList.add("visivel");
+  }
+
+  function fecharModal() {
+    document.getElementById("modal-editar").classList.remove("visivel");
+  }
+
+  function salvarEdicao() {
+    const id    = document.getElementById("edit-id").value;
+    const nome  = document.getElementById("edit-nome").value.trim();
+    const email = document.getElementById("edit-email").value.trim();
+    const cpf   = document.getElementById("edit-cpf").value.trim();
+    const senha = document.getElementById("edit-senha").value;
+    const alerta = document.getElementById("alerta-edit");
+
+    alerta.className = "alerta";
+
+    if (!nome || !email) {
+      alerta.textContent = "Nome e e-mail são obrigatórios.";
+      alerta.classList.add("visivel", "alerta-erro");
+      return;
+    }
+    if (!validarEmail(email)) {
+      alerta.textContent = "E-mail inválido.";
+      alerta.classList.add("visivel", "alerta-erro");
+      return;
+    }
+
+    const dados = { nome, email, cpf };
+    if (senha) {
+      if (senha.length < 6) {
+        alerta.textContent = "Senha deve ter pelo menos 6 caracteres.";
+        alerta.classList.add("visivel", "alerta-erro");
+        return;
+      }
+      dados.senha = senha;
+    }
+
+    editarCliente(id, dados);
+    alerta.textContent = "✅ Cliente atualizado com sucesso!";
+    alerta.classList.add("visivel", "alerta-sucesso");
+    setTimeout(() => {
+      fecharModal();
+      carregarEstatisticas();
+      renderizarClientes(carregar("clientes", []));
+    }, 1200);
+  }
+
+  // COMPRAS
+  function filtrarCompras() {
+    const termo = document.getElementById("busca-compras").value;
+    renderizarCompras(buscarCompras(termo));
+  }
+
+  function renderizarCompras(lista) {
+    const tbody = document.getElementById("tbody-compras");
+    if (lista.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="8" style="text-align:center; color:var(--cinza-text); padding:2rem;">Nenhuma compra encontrada.</td></tr>';
+      return;
+    }
+    tbody.innerHTML = lista.map(c => `
+      <tr>
+        <td><strong>${c.id}</strong></td>
+        <td>${c.clienteNome}</td>
+        <td>${c.clienteId}</td>
+        <td>${c.data}</td>
+        <td>${c.hora || "—"}</td>
+        <td>${c.produtos.length} item(s)</td>
+        <td style="color:var(--dourado); font-weight:700;">R$ ${c.valorTotal.toFixed(2).replace(".", ",")}</td>
+        <td>
+          <button class="btn-acao" onclick="verDetalheCompra('${c.id}')">🔍 Ver</button>
+        </td>
+      </tr>
+    `).join("");
+  }
+
+  function verDetalheCompra(id) {
+    const compras = carregar("compras", []);
+    const c = compras.find(x => x.id === id);
+    if (!c) return;
+
+    const html = `
+      <div class="modal-campo"><strong>ID:</strong> ${c.id}</div>
+      <div class="modal-campo"><strong>Cliente:</strong> ${c.clienteNome}</div>
+      <div class="modal-campo"><strong>ID Cliente:</strong> ${c.clienteId}</div>
+      <div class="modal-campo"><strong>Data:</strong> ${c.data} às ${c.hora || "—"}</div>
+      <div class="modal-campo"><strong>Total:</strong> <span style="color:var(--dourado); font-weight:700;">R$ ${c.valorTotal.toFixed(2).replace(".", ",")}</span></div>
+      <hr style="margin:1rem 0; border-color:var(--cinza-med);">
+      <strong style="font-size:0.9rem; color:var(--azul);">Produtos:</strong>
+      <div class="compra-produto-lista" style="margin-top:0.6rem;">
+        ${c.produtos.map(p =>
+          `<div style="display:flex; justify-content:space-between; padding:0.4rem 0; border-bottom:1px solid var(--cinza-med);">
+            <span>${p.nome} <span style="color:var(--cinza-text);">x${p.qtd}</span></span>
+            <span style="font-weight:700;">R$ ${(p.preco * p.qtd).toFixed(2).replace(".", ",")}</span>
+          </div>`
+        ).join("")}
+      </div>
+    `;
+    document.getElementById("modal-compra-conteudo").innerHTML = html;
+    document.getElementById("modal-compra").classList.add("visivel");
+  }
+
+  function fecharModalCompra() {
+    document.getElementById("modal-compra").classList.remove("visivel");
+  }
+
+  // Fechar modais ao clicar fora
+  document.getElementById("modal-editar").addEventListener("click", function(e) {
+    if (e.target === this) fecharModal();
+  });
+  document.getElementById("modal-compra").addEventListener("click", function(e) {
+    if (e.target === this) fecharModalCompra();
+  });
+</script>
+</body>
+</html>

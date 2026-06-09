@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tatame Store – Equipamentos de Jiu-Jitsu</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Source+Sans+3:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <style>
+    .toast {
+      position: fixed; bottom: 6rem; right: 2rem;
+      background: var(--azul); color: var(--branco);
+      padding: 0.8rem 1.4rem; border-radius: var(--raio);
+      font-size: 0.92rem; font-weight: 600;
+      box-shadow: var(--sombra); z-index: 400;
+      transform: translateY(20px); opacity: 0;
+      transition: all 0.3s; pointer-events: none;
+    }
+    .toast.visivel { transform: translateY(0); opacity: 1; }
+    .toast.toast-erro { background: #e53e3e; }
+    .faixas-banner {
+      display: flex; gap: 0.4rem; justify-content: center;
+      padding: 0.6rem; background: rgba(255,255,255,0.08);
+      border-radius: var(--raio); margin: 1.5rem auto 0;
+      max-width: 300px;
+    }
+    .faixa {
+      height: 10px; flex: 1; border-radius: 3px;
+    }
+    .filtro-cats {
+      display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1.5rem;
+    }
+    .btn-filtro {
+      padding: 0.35rem 0.9rem; border-radius: 20px;
+      border: 2px solid var(--cinza-med); background: var(--branco);
+      cursor: pointer; font-size: 0.85rem; font-weight: 600;
+      transition: all 0.2s; color: var(--cinza-text);
+    }
+    .btn-filtro:hover, .btn-filtro.ativo {
+      background: var(--azul); color: var(--branco); border-color: var(--azul);
+    }
+    .valor-destaque {
+      display: flex; align-items: center; gap: 1rem;
+      background: var(--cinza-leve); border-radius: var(--raio);
+      padding: 1.2rem 1.5rem; margin-bottom: 1rem;
+      border-left: 4px solid var(--dourado);
+    }
+    .valor-destaque .emoji { font-size: 2rem; }
+    .valor-destaque strong { display: block; font-size: 1.05rem; color: var(--azul); }
+    .valor-destaque span { font-size: 0.88rem; color: var(--cinza-text); }
+  </style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header>
+  <div class="header-inner">
+    <a href="index.html" class="logo">
+      <div class="logo-icone">🥋</div>
+      <div class="logo-texto">
+        <span class="logo-nome">Tatame Store</span>
+        <span class="logo-slogan">Arte Suave em Cada Produto</span>
+      </div>
+    </a>
+    <button class="hamburger" onclick="toggleMenu()" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
+    <nav id="nav-principal">
+      <ul>
+        <li><a href="index.html" class="ativo">Início</a></li>
+        <li><a href="loja.html">Loja</a></li>
+        <li><a href="cadastro.html">Cadastrar</a></li>
+        <li><a href="relatorios.html">Relatórios</a></li>
+        <li id="area-usuario"><a href="login.html" class="btn-nav-login">Entrar</a></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<!-- HERO -->
+<section class="hero">
+  <h1 class="hero-titulo">Tudo para sua <span>Arte Suave</span></h1>
+  <p class="hero-sub">Equipamentos de qualidade para atletas de todos os níveis. Do iniciante ao faixa preta.</p>
+  <a href="loja.html" class="btn btn-dourado" style="margin: 0 auto; display:inline-flex;">Ver Produtos</a>
+  <div class="faixas-banner">
+    <div class="faixa" style="background:#fff;"></div>
+    <div class="faixa" style="background:#4a90d9;"></div>
+    <div class="faixa" style="background:#7b2d8b;"></div>
+    <div class="faixa" style="background:#c8621a;"></div>
+    <div class="faixa" style="background:#111;"></div>
+  </div>
+</section>
+
+<!-- PRODUTOS EM DESTAQUE -->
+<section class="secao">
+  <h2 class="secao-titulo">Produtos em Destaque</h2>
+  <p class="secao-sub">Os mais populares da nossa tatame</p>
+  <div class="divisor"></div>
+
+  <div class="filtro-cats">
+    <button class="btn-filtro ativo" onclick="filtrarProdutos('todos', this)">Todos</button>
+    <button class="btn-filtro" onclick="filtrarProdutos('kimono', this)">Kimonos</button>
+    <button class="btn-filtro" onclick="filtrarProdutos('faixa', this)">Faixas</button>
+    <button class="btn-filtro" onclick="filtrarProdutos('protetor', this)">Protetores</button>
+    <button class="btn-filtro" onclick="filtrarProdutos('vestuario', this)">Vestuário</button>
+    <button class="btn-filtro" onclick="filtrarProdutos('acessorio', this)">Acessórios</button>
+  </div>
+
+  <div class="grade-produtos" id="grade-produtos"></div>
+</section>
+
+<!-- SOBRE NOS -->
+<section class="bg-cinza">
+  <div class="secao">
+    <h2 class="secao-titulo">Sobre a Tatame Store</h2>
+    <p class="secao-sub">Nossa história e missão</p>
+    <div class="divisor"></div>
+
+    <div class="sobre-grid">
+      <div>
+        <p style="font-size:1rem; line-height:1.8; color:var(--cinza-text); margin-bottom:1.2rem;">
+          A <strong>Tatame Store</strong> nasceu dentro de uma academia de Jiu-Jitsu, por praticantes que sentiam falta de equipamentos de qualidade com preços justos. Somos faixas azuis que entendem o que um atleta precisa dentro e fora da tatame.
+        </p>
+        <p style="font-size:1rem; line-height:1.8; color:var(--cinza-text); margin-bottom:1.5rem;">
+          Todos os nossos produtos são selecionados com a mentalidade do praticante: durabilidade, conforto e respeito à arte suave. Trabalhamos com as melhores marcas nacionais e importadas.
+        </p>
+
+        <div class="valor-destaque">
+          <span class="emoji">🤝</span>
+          <div>
+            <strong>Compromisso com a Arte</strong>
+            <span>Cada produto testado em treinamento real pelos nossos atletas.</span>
+          </div>
+        </div>
+        <div class="valor-destaque">
+          <span class="emoji">🚚</span>
+          <div>
+            <strong>Entrega Rápida</strong>
+            <span>Enviamos para todo o Brasil. Frete grátis acima de R$ 299.</span>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div class="sobre-img" style="margin-bottom:1rem;">🥋</div>
+        <div class="sobre-img" style="height:160px; font-size:4rem;">🏆</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CONTATO -->
+<section class="secao" id="contato">
+  <h2 class="secao-titulo">Entre em Contato</h2>
+  <p class="secao-sub">Tire suas dúvidas ou faça sugestões</p>
+  <div class="divisor"></div>
+
+  <div class="contato-grid">
+    <div class="info-contato">
+      <p>📍 <span>Rua das Artes Suaves, 245 – Florianópolis, SC</span></p>
+      <p>📞 <span>(48) 99999-0001</span></p>
+      <p>📧 <span>contato@tatamestore.com.br</span></p>
+      <p>🕐 <span>Seg–Sex: 9h às 18h | Sáb: 9h às 13h</span></p>
+      <p style="margin-top:1rem; font-size:0.9rem; color:var(--cinza-text);">
+        Siga-nos nas redes sociais: <strong>@tatamestore</strong>
+      </p>
+    </div>
+    <div>
+      <div id="alerta-contato" class="alerta"></div>
+      <div class="form-grupo">
+        <label for="cont-nome">Nome</label>
+        <input type="text" id="cont-nome" placeholder="Seu nome completo">
+      </div>
+      <div class="form-grupo">
+        <label for="cont-email">E-mail</label>
+        <input type="email" id="cont-email" placeholder="seu@email.com">
+      </div>
+      <div class="form-grupo">
+        <label for="cont-msg">Mensagem</label>
+        <textarea id="cont-msg" placeholder="Escreva sua mensagem..."></textarea>
+      </div>
+      <button class="btn btn-primario" onclick="enviarContato()" style="width:100%;">Enviar Mensagem</button>
+    </div>
+  </div>
+</section>
+
+<!-- CARRINHO FLUTUANTE -->
+<div class="carrinho-flutuante">
+  <button class="btn-carrinho" onclick="toggleCarrinho()" aria-label="Carrinho">
+    🛒
+    <span class="carrinho-badge" id="carrinho-badge" style="display:none;">0</span>
+  </button>
+</div>
+
+<!-- PAINEL CARRINHO -->
+<div class="overlay" id="overlay-carrinho"></div>
+<aside class="painel-carrinho" id="painel-carrinho">
+  <div class="painel-carrinho-cabecalho">
+    <h2>🛒 Carrinho</h2>
+    <button class="btn-fechar" onclick="fecharCarrinho()">✕</button>
+  </div>
+  <div class="painel-carrinho-itens" id="carrinho-itens"></div>
+  <div class="painel-carrinho-rodape">
+    <div class="total-carrinho">
+      <span>Total:</span>
+      <span id="carrinho-total">R$ 0,00</span>
+    </div>
+    <button class="btn btn-dourado" style="width:100%;" onclick="finalizarCompra()">Finalizar Compra</button>
+  </div>
+</aside>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-grid">
+    <div class="footer-col">
+      <h3>🥋 Tatame Store</h3>
+      <p>Fundada por praticantes de Jiu-Jitsu para praticantes. Qualidade e tradição da arte suave.</p>
+    </div>
+    <div class="footer-col">
+      <h3>Navegação</h3>
+      <ul>
+        <li><a href="index.html">Início</a></li>
+        <li><a href="loja.html">Loja</a></li>
+        <li><a href="cadastro.html">Cadastro</a></li>
+        <li><a href="login.html">Login</a></li>
+        <li><a href="relatorios.html">Relatórios</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h3>Contato</h3>
+      <p>📍 Florianópolis, SC</p>
+      <p>📞 (48) 99999-0001</p>
+      <p>📧 contato@tatamestore.com.br</p>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span>© 2026 Tatame Store. Todos os direitos reservados.</span>
+    <span>Desenvolvido com 🥋 e dedicação</span>
+  </div>
+</footer>
+
+<script src="main.js"></script>
+<script>
+  let categoriaAtiva = "todos";
+
+  function renderizarProdutos(lista) {
+    const grade = document.getElementById("grade-produtos");
+    grade.innerHTML = lista.map(p => `
+      <article class="card-produto">
+        <div class="card-produto-img">${p.emoji}</div>
+        <div class="card-produto-corpo">
+          <h3 class="card-produto-nome">${p.nome}</h3>
+          <p class="card-produto-desc">${p.desc}</p>
+          <div class="card-produto-preco">R$ ${p.preco.toFixed(2).replace(".", ",")}</div>
+          <button class="btn btn-primario" onclick="adicionarAoCarrinho('${p.id}')" style="width:100%;">
+            🛒 Adicionar
+          </button>
+        </div>
+      </article>
+    `).join("");
+  }
+
+  function filtrarProdutos(cat, btn) {
+    categoriaAtiva = cat;
+    document.querySelectorAll(".btn-filtro").forEach(b => b.classList.remove("ativo"));
+    btn.classList.add("ativo");
+    const filtrados = cat === "todos" ? PRODUTOS : PRODUTOS.filter(p => p.categoria === cat);
+    renderizarProdutos(filtrados);
+  }
+
+  function enviarContato() {
+    const nome = document.getElementById("cont-nome").value.trim();
+    const email = document.getElementById("cont-email").value.trim();
+    const msg = document.getElementById("cont-msg").value.trim();
+    const alerta = document.getElementById("alerta-contato");
+
+    alerta.className = "alerta";
+
+    if (!nome || !email || !msg) {
+      alerta.textContent = "Preencha todos os campos.";
+      alerta.classList.add("visivel", "alerta-erro");
+      return;
+    }
+    if (!validarEmail(email)) {
+      alerta.textContent = "E-mail inválido.";
+      alerta.classList.add("visivel", "alerta-erro");
+      return;
+    }
+    alerta.textContent = "✅ Mensagem enviada! Retornaremos em breve.";
+    alerta.classList.add("visivel", "alerta-sucesso");
+    document.getElementById("cont-nome").value = "";
+    document.getElementById("cont-email").value = "";
+    document.getElementById("cont-msg").value = "";
+  }
+
+  // Init
+  renderizarProdutos(PRODUTOS);
+</script>
+</body>
+</html>
